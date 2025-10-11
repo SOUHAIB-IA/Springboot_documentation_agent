@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+langchain
+langchain-groq
+langchain-core
+javalang
+
+# For Advanced Vector Memory
+chromadb
+langchain-community
+sentence-transformers # For embeddings, even if using Groq for generation
+tiktoken

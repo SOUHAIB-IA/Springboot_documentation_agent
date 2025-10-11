@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
+/home/souhaib/springboot-doc-agent/.env
+
+# Other
+*.log
+GENERATED_DOCUMENTATION.md
