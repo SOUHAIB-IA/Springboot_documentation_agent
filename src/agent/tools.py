@@ -13,7 +13,8 @@ class CodeAndMemoryTools:
         # Create a bound, no-argument tool for listing Java files. Wrapping the
         # callable here ensures it closes over `self` and avoids unbound-method
         # issues when the tools framework calls the function.
-        def _bound_list_java_files():
+        def _list_java_files_plain():
+            """Return a newline-separated string of Java file paths (relative to project_path)."""
             java_files = []
             for root, _, files in os.walk(self.project_path):
                 for file in files:
@@ -22,8 +23,13 @@ class CodeAndMemoryTools:
                         java_files.append(relative_path)
             return "\n".join(java_files)
 
-        # Attach the bound tool to this instance
-        self.list_java_files = tool(args_schema=EmptyArgs)(_bound_list_java_files)
+        # Expose a plain callable that can be used directly by non-tool code.
+        self.list_java_files = _list_java_files_plain
+
+        # Also expose a tool-wrapped version for use by tool-calling agents if needed.
+        # Keep the tool wrapper under a different name to avoid accidental invocation
+        # of the tool object as if it were a normal callable.
+        self.list_java_files_tool = tool(args_schema=EmptyArgs)(_list_java_files_plain)
 
         # Create bound tools for the other instance methods so the tool system
         # calls bound callables (no missing 'self'). Each wrapper delegates to

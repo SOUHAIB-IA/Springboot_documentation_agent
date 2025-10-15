@@ -1,1 +1,1 @@
-[MOCK WRITER OUTPUT] Generated mock documentation for testing.
+Error listing files: BaseTool.__call__() missing 1 required positional argument: 'tool_input'
