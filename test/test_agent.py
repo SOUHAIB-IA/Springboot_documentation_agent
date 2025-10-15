@@ -15,7 +15,7 @@ from src.agent.agent import run_agent
 
 # --- ❗️ CONFIGURATION ❗️ ---
 # IMPORTANT: Replace this with the actual, absolute path to YOUR Spring Boot project.
-PATH_TO_YOUR_SPRING_BOOT_PROJECT = "/home/souhaib/Projects/modelService" 
+PATH_TO_YOUR_SPRING_BOOT_PROJECT = "/home/souhaib/global/auth-service"
 # Example for Windows: "C:\\Users\\Souhaib\\Projects\\my-spring-project"
 # --- END CONFIGURATION ---
 
