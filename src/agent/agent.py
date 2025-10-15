@@ -7,7 +7,7 @@ from langgraph.graph import StateGraph, END
 from src.agent.tools import CodeAndMemoryTools
 from google.api_core.exceptions import ServiceUnavailable
 
-# --- 1. AgentState is the same ---
+# --- AgentState and create_agent are the same ---
 class AgentState(TypedDict):
     project_path: str
     file_path: str
@@ -15,54 +15,50 @@ class AgentState(TypedDict):
     review_feedback: str
     revision_number: int
 
-# --- 2. Agent Creation Helper is Corrected ---
-def create_agent(llm, tools, system_prompt: str):
+def create_agent(llm, tools):
     """Helper function to create a configured agent that uses native tool calling."""
-    
-    # This is the standard prompt for tool-calling agents.
+    # This prompt is the standard for tool-calling agents and works well.
     prompt = hub.pull("hwchase17/openai-tools-agent")
-    
-    # *** THE FIX: Correctly inject the system prompt. ***
-    # This prompt has an 'input' and 'agent_scratchpad' variable.
-    # We don't need to manually add the system prompt to the input.
-    # We can rely on the model's system message capabilities.
-    # However, for full compatibility, let's ensure the prompt is well-formed.
-    # The ChatGoogleGenerativeAI class handles system messages well when convert_system_message_to_human=True.
-    
     llm_with_tools = llm.bind_tools(tools)
-    
-    # The agent combines the LLM with tools and the prompt.
     agent = create_tool_calling_agent(llm_with_tools, tools, prompt)
-    
     return AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
 
-# --- 3. Agent Nodes are Corrected ---
+# --- Agent Nodes with Corrected Prompts ---
 def writer_agent_node(state: AgentState):
     """The node for the Documentation Writer agent."""
     file_path = state['file_path']
     print(f"\n--- ✍️ CALLING WRITER for: {file_path} ---")
-    
-    # Set the system message directly in the LLM, which is a cleaner pattern
-    # The convert_system_message_to_human handles the formatting for us.
-    if state.get("review_feedback"):
-        system_prompt = f"""
-        Revise the documentation for the file `{file_path}` based on the following feedback.
-        Read the file's content to understand the context of the feedback and provide a new, corrected version.
 
-        Reviewer's Feedback: `{state['review_feedback']}`
-        Previous Draft:
-        ```markdown
-        {state['draft_documentation']}
-        ```
+    # *** THE FIX: Add a strong persona and behavioral rules to the prompt ***
+    if state.get("review_feedback"):
+        # This prompt for revisions is fine as it's highly specific.
+        system_prompt = f"""
+        You are an autonomous technical writer AI. Your task is to revise a draft of documentation for the file `{file_path}` based on the provided feedback.
+        You MUST use your tools to read the source code to verify the feedback. DO NOT ask for clarification.
+        Your final answer MUST be only the complete, revised Markdown documentation.
+
+        Reviewer's Feedback to Address: `{state['review_feedback']}`
         """
+        user_input = f"Revise the documentation for {file_path} based on the feedback."
     else:
-        system_prompt= f"""
-        Generate a detailed, comprehensive Markdown documentation section for the following Java file: `{file_path}`.
-        You MUST use the `read_file_content` tool to get the file's source code first.
-        Analyze the code and document its purpose, key methods, annotations, and relationships.
+        # The initial draft prompt is where the main fix is needed.
+        system_prompt = """
+        You are an autonomous AI agent. Your sole purpose is to generate technical documentation for a given Java file.
+        
+        **BEHAVIORAL RULES:**
+        1.  You MUST act autonomously.
+        2.  You MUST NOT ask for help, clarification, or direction.
+        3.  You MUST use your provided tools to get all the information you need.
+        4.  Your final answer MUST be only the generated Markdown documentation. Do not include any conversational text, questions, or introductory phrases.
         """
+        user_input = f"""
+        Generate a detailed, comprehensive Markdown documentation section for the following Java file: `{file_path}`.
+        You MUST start by using the `read_file_content` tool to get the file's source code.
+        Then, analyze the code and write the documentation.
+        """
+
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", 
+        model="gemini-1.5-pro-latest", # Switched back to 1.5 Pro for better instruction following
         temperature=0.2, 
         convert_system_message_to_human=True,
         system_message=system_prompt
@@ -75,11 +71,10 @@ def writer_agent_node(state: AgentState):
         tools_instance.search_memory
     ]
 
-    writer_agent = create_agent(llm, tools, system_prompt)
+    writer_agent = create_agent(llm, tools)
     
     try:
-        # The input can now be very simple, as the instructions are in the system message
-        result = writer_agent.invoke({"input": f"Generate the documentation for {file_path}."})
+        result = writer_agent.invoke({"input": user_input, "chat_history": [("assistant", state['draft_documentation'])]})
         return {"draft_documentation": result["output"], "revision_number": state.get("revision_number", 0) + 1}
     except ServiceUnavailable as e:
         error_message = f"Network error during writer execution: {e}. Skipping."
@@ -96,20 +91,19 @@ def reviewer_agent_node(state: AgentState):
     file_path = state['file_path']
     print(f"\n--- 🧐 CALLING REVIEWER for: {file_path} ---")
 
-    system_prompt = f"""
-    Review the following documentation for the file `{file_path}`.
-    Read this specific file's source code using your `read_file_content` tool and verify the documentation's accuracy.
-    If it is accurate and complete, respond with ONLY the word "APPROVED".
-    Otherwise, provide a concise, bulleted list of feedback.
+    # *** THE FIX: Add a strong persona and behavioral rules to the reviewer as well ***
+    system_prompt = """
+    You are an autonomous AI code reviewer. Your sole purpose is to review a documentation draft against its source code.
 
-    Documentation to Review:
-    ```markdown
-    {state['draft_documentation']}
-    ```
+    **BEHAVIORAL RULES:**
+    1.  You MUST act autonomously.
+    2.  You MUST NOT ask for help or clarification.
+    3.  You MUST use your tools to read the source code for verification.
+    4.  Your final answer MUST be ONLY the single word "APPROVED" or a bulleted list of feedback. Do not include conversational text.
     """
     
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", 
+        model="gemini-1.5-pro-latest", 
         temperature=0, 
         convert_system_message_to_human=True,
         system_message=system_prompt
@@ -118,10 +112,21 @@ def reviewer_agent_node(state: AgentState):
     tools_instance = CodeAndMemoryTools(project_path=state["project_path"])
     tools = [tools_instance.read_file_content]
 
-    reviewer_agent = create_agent(llm, tools, system_prompt)
+    reviewer_agent = create_agent(llm, tools)
     
     try:
-        result = reviewer_agent.invoke({"input": state['draft_documentation']})
+        user_input = f"""
+        Review the following documentation for the file `{file_path}`.
+        Read this specific file's source code using your `read_file_content` tool and verify the documentation's accuracy.
+        If it is accurate and complete, respond with "APPROVED".
+        Otherwise, provide feedback.
+
+        Documentation to Review:
+        ```markdown
+        {state['draft_documentation']}
+        ```
+        """
+        result = reviewer_agent.invoke({"input": user_input})
         return {"review_feedback": result["output"]}
     except ServiceUnavailable as e:
         error_message = f"Network error during reviewer execution: {e}. Approving to skip."
