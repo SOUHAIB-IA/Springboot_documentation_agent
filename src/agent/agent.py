@@ -7,6 +7,9 @@ from langgraph.graph import StateGraph, END
 from src.agent.tools import CodeAndMemoryTools
 from google.api_core.exceptions import ServiceUnavailable
 
+from src.agent.publisher_prompts import PUBLISHER_PROMPT_TEMPLATE
+from langchain_core.output_parsers import StrOutputParser
+
 # --- AgentState and create_agent are the same ---
 class AgentState(TypedDict):
     project_path: str
@@ -58,7 +61,7 @@ def writer_agent_node(state: AgentState):
         """
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-pro-latest", # Switched back to 1.5 Pro for better instruction following
+        model="gemini-2.5-flash", # Switched back to 1.5 Pro for better instruction following
         temperature=0.2, 
         convert_system_message_to_human=True,
         system_message=system_prompt
@@ -103,7 +106,7 @@ def reviewer_agent_node(state: AgentState):
     """
     
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-pro-latest", 
+        model="gemini-2.5-flash", 
         temperature=0, 
         convert_system_message_to_human=True,
         system_message=system_prompt
@@ -156,45 +159,90 @@ def should_continue(state: AgentState):
     return "continue"
 
 def run_agent(project_path: str):
-    """Orchestrates the documentation generation process, one file at a time."""
-    # (This entire orchestrator function remains the same as the last version)
-    # It correctly loops through files and invokes the graph.
+    """
+    Orchestrates the entire documentation generation process, from file discovery
+    to final publishing.
+    """
     print("=== Multi-Agent Orchestrator Start ===")
     
+    # 1. Compile the reusable Writer/Reviewer agent graph
     workflow = StateGraph(AgentState)
     workflow.add_node("writer", writer_agent_node)
     workflow.add_node("reviewer", reviewer_agent_node)
     workflow.set_entry_point("writer")
     workflow.add_edge("writer", "reviewer")
-    workflow.add_conditional_edges("reviewer", should_continue, {"continue": "writer", "end": END})
+    workflow.add_conditional_edges(
+        "reviewer",
+        should_continue,
+        {"continue": "writer", "end": END}
+    )
     app = workflow.compile()
 
+    # 2. Discover all files to be documented
     print("--- 🗺️ Discovering files in project... ---")
     tools_instance = CodeAndMemoryTools(project_path=project_path)
     try:
         file_list_str = tools_instance.list_java_files()
-        files_to_document = [f for f in file_list_str.split('\n') if f]
+        files_to_document = [f for f in file_list_str.split('\n') if f] # Filter out empty lines
+        if not files_to_document:
+            return "No Java files found in the specified project path.", {"status": "Complete", "feedback": "No files to document."}
         print(f"Found {len(files_to_document)} files to document.")
     except Exception as e:
         return f"Error listing files: {e}", {"status": "Failed", "feedback": "Could not list project files."}
 
+    # 3. Process each file in a loop to generate raw documentation snippets
     final_documentation_parts = []
     for i, file_path in enumerate(files_to_document):
         print("\n" + "="*50)
         print(f"📄 Processing file {i+1}/{len(files_to_document)}: {file_path}")
         print("="*50)
         
-        initial_state = {"project_path": project_path, "file_path": file_path, "draft_documentation": "", "review_feedback": "", "revision_number": 0}
+        initial_state = {
+            "project_path": project_path,
+            "file_path": file_path,
+            "draft_documentation": "",
+            "review_feedback": "",
+            "revision_number": 0
+        }
         
+        # Invoke the graph for this single file
         final_state = app.invoke(initial_state, {"recursion_limit": 10})
-        final_documentation_parts.append(final_state.get('draft_documentation', f"### Failed to document {file_path}\n"))
+        
+        # Add the approved documentation snippet to our list
+        snippet = final_state.get('draft_documentation', f"### Failed to document {file_path}\n")
+        # Add the file path as a header to each snippet for the publisher's context
+        final_documentation_parts.append(f"### File: `{file_path}`\n\n{snippet}")
 
+        # Pause to respect API rate limits, but not after the last file
         if i < len(files_to_document) - 1:
             print("\n--- ⏳ Pausing for 60 seconds to respect API rate limits... ---")
             time.sleep(60)
 
-    full_documentation = "\n\n---\n\n".join(final_documentation_parts)
-    report = {"status": "Complete", "feedback": f"Successfully processed {len(files_to_document)} files."}
+    # 4. NEW: Call the Publisher Agent to assemble the final document
+    print("\n" + "="*50)
+    print("📚 Assembling the final document with the Publisher Agent...")
+    print("="*50)
+
+    # Combine all the generated snippets into a single string for the publisher
+    raw_snippets = "\n\n---\n\n".join(final_documentation_parts)
+
+    # Create the Publisher Chain
+    publisher_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.1, convert_system_message_to_human=True)
+    publisher_chain = PUBLISHER_PROMPT_TEMPLATE | publisher_llm | StrOutputParser()
+
+    # Invoke the Publisher to get the final, polished document
+    try:
+        final_document = publisher_chain.invoke({"documentation_snippets": raw_snippets})
+        print("✅ Final document successfully assembled.")
+    except Exception as e:
+        print(f"❌ Error during publishing phase: {e}")
+        print("⚠️ Falling back to returning raw, unorganized snippets.")
+        final_document = "# Raw Documentation Snippets\n\n" + raw_snippets
+
+    report = {
+        "status": "Complete", 
+        "feedback": f"Successfully processed and assembled documentation for {len(files_to_document)} files."
+    }
 
     print("\n=== Orchestrator End ===")
-    return full_documentation, report
+    return final_document, report
