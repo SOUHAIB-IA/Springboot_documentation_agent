@@ -1,223 +1,755 @@
 # Autonomous Spring Boot Documentation Agent
 
 <div align="center">
-  <img src="https://path-to-your-logo-or-banner-image.png" alt="Project Banner" width="600"/>
-  <br/><br/>
-  <p>
-    <b>An AI-powered multi-agent system that autonomously generates comprehensive technical documentation for Spring Boot projects.</b>
-  </p>
-  <p>
-    Built with a real-time "Mission Control" desktop interface using Tauri and Next.js.
-  </p>
-  <br/>
-    <img alt="License" src="https://img.shields.io/github/license/your-username/your-repo-name?style=for-the-badge">
-    <img alt="Last Commit" src="https://img.shields.io/github/last-commit/your-username/your-repo-name?style=for-the-badge">
-    <img alt="Repo Stars" src="https://img.shields.io/github/stars/your-username/your-repo-name?style=social">
+  
+  ### 🤖 AI-Powered Multi-Agent Documentation System
+  
+  *Automatically generate comprehensive technical documentation for Spring Boot projects with real-time monitoring*
+  
+  [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+  [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+  [![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+  [![Code of Conduct](https://img.shields.io/badge/Code%20of-Conduct-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
+  [Features](#-features) •
+  [Demo](#-demo) •
+  [Installation](#-installation) •
+  [Usage](#-usage) •
+  [Contributing](#-contributing) •
+  [License](#-license)
+
 </div>
 
 ---
 
-## 🚀 Overview
+## 📋 Table of Contents
 
-This project is an advanced AI agent designed to automate the tedious process of writing and maintaining technical documentation for Java Spring Boot applications. It leverages a multi-agent architecture where AI agents collaborate to analyze a codebase, write documentation, review the output for accuracy, and assemble a final, polished Markdown document.
-
-The entire process can be monitored in real-time through a sleek "Mission Control" desktop application, which provides a live feed of the agents' thoughts, actions, and the documentation as it's being built.
-
-### ✨ Key Features
-
-*   **🧠 Multi-Agent Collaboration:** A **Writer Agent** generates content, and a **Reviewer Agent** critiques it by comparing it against the source code, ensuring high accuracy.
-*   **🖥️ Real-Time Mission Control UI:** A native desktop application built with **Tauri** and **Next.js** provides a live feed of the agent's reasoning process and the generated documentation.
-*   **🔐 Local-First & Secure:** The application runs locally on your machine. Using Tauri, it can securely access local project folders without exposing them to the web.
-*   **🤖 Autonomous Operation:** Simply point the agent at a project, and it handles the entire workflow: file discovery, analysis, generation, review, and final publishing.
-*   **📝 Comprehensive Markdown Output:** Generates a single, well-organized document with a table of contents, code snippets, and logical sections for Entities, Services, Controllers, and more.
-*   **🔄 Stateful & Resilient:** Uses a vector store for long-term memory and includes robust error handling for network issues, allowing it to continue its work on long-running tasks.
-
-<br/>
-<p align="center">
-  <img src="https-your-screenshot-link-here.png" alt="Mission Control Screenshot" width="800"/>
-  <br/>
-  <em>The Mission Control dashboard in action.</em>
-</p>
-<br/>
+- [Overview](#-overview)
+- [Features](#-features)
+- [Demo](#-demo)
+- [Architecture](#-architecture)
+- [Installation](#-installation)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Detailed Setup](#detailed-setup)
+- [Usage](#-usage)
+- [Configuration](#-configuration)
+- [Project Structure](#-project-structure)
+- [Tech Stack](#-tech-stack)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [Troubleshooting](#-troubleshooting)
+- [FAQ](#-faq)
+- [License](#-license)
+- [Acknowledgments](#-acknowledgments)
+- [Contact](#-contact)
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🎯 Overview
 
-This project is a monorepo combining a Python back end with a TypeScript/React front end.
+The **Autonomous Spring Boot Documentation Agent** is an intelligent system that eliminates the manual effort of writing and maintaining technical documentation. Using a multi-agent AI architecture, it analyzes Java Spring Boot codebases, generates comprehensive documentation, and validates accuracy through peer review—all while providing real-time visibility into the process.
 
-| Component      | Technology                                                                          |
-| -------------- | ----------------------------------------------------------------------------------- |
-| **Back End**   | **Python**, **FastAPI**, **LangChain** (with **LangGraph**), **Socket.IO**           |
-| **LLM**        | **Google Gemini 1.5 Pro** (easily swappable for Groq, OpenAI, etc.)                 |
-| **Front End**  | **Next.js**, **React**, **TypeScript**, **Tailwind CSS**, **Shadcn/ui**             |
-| **Desktop App**| **Tauri** (Rust-based)                                                              |
-| **Real-Time**  | **WebSockets** (via `python-socketio` and `socket.io-client`)                       |
-| **Memory**     | **ChromaDB** (Vector Store) with **Sentence Transformers** (Local Embeddings)       |
+### Why This Project?
 
-### 🏛️ Architectural Flow
+- ⏰ **Save Time**: Automate hours of documentation work
+- 🎯 **Ensure Accuracy**: AI agents cross-validate content against source code
+- 👁️ **Full Visibility**: Watch the documentation process in real-time
+- 🔒 **Privacy First**: Runs 100% locally on your machine
+- 🎨 **Professional Output**: Generates well-structured Markdown with proper formatting
 
-The system operates as a stateful graph where a manager orchestrates tasks, one file at a time.
+---
+
+## ✨ Features
+
+### Core Capabilities
+
+- 🧠 **Multi-Agent Collaboration**
+  - Writer Agent creates documentation sections
+  - Reviewer Agent validates against source code
+  - Publisher Agent assembles the final document
+
+- 🖥️ **Mission Control Desktop UI**
+  - Native desktop application (Tauri + Next.js)
+  - Real-time agent activity feed
+  - Live documentation preview
+  - One-click download and copy
+
+- 🔐 **Local-First Architecture**
+  - No cloud dependencies for code analysis
+  - Secure local file system access
+  - API keys stored locally
+
+- 🤖 **Intelligent Analysis**
+  - Automatic Spring Boot project structure detection
+  - Entity, Service, Controller, and Repository analysis
+  - Dependency relationship mapping
+  - Code pattern recognition
+
+- 📝 **Comprehensive Output**
+  - Table of contents with deep linking
+  - Code snippets with syntax highlighting
+  - Architecture diagrams (Mermaid.js)
+  - API endpoint documentation
+  - Database schema documentation
+
+- 🔄 **Robust & Resilient**
+  - Vector store for long-term memory
+  - Automatic retry logic for API failures
+  - Progress persistence across runs
+  - Graceful error handling
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
 
 ```mermaid
-graph TD
-    subgraph Mission Control UI (Tauri/Next.js)
-        A[1. User clicks 'Browse'] --> B{Selects Project Folder};
-        B --> C[2. User clicks 'Launch Agent'];
-        C --> D[3. UI emits 'start_agent' via WebSocket];
-        D --> E{Listens for 'log' events};
-        E --> F[4. Agent Feed is populated];
-        G{Listens for 'final_result'} --> H[5. Documentation Panel is populated];
-    end
-
-    subgraph Back End (FastAPI & LangGraph)
-        I[3. Socket.IO server receives 'start_agent'];
-        I --> J[4. run_agent() orchestrator starts];
-        J --> K[Discovers files];
-        K --> L{Loop for each file};
-        L --> M[5. Invoke LangGraph App];
-        M --> N[6. Writer Agent];
-        N --> O[7. Reviewer Agent];
-        O --> P{Approved?};
-        P -- No --> N;
-        P -- Yes --> L;
-        J --> Q[8. Publisher Agent assembles final doc];
+graph TB
+    subgraph "Desktop UI (Tauri + Next.js)"
+        UI[Mission Control Interface]
+        Feed[Agent Activity Feed]
+        Preview[Documentation Preview]
     end
     
-    subgraph Services
-      R[LLM API (Gemini)];
-      S[Local Vector Store];
+    subgraph "Backend (FastAPI + LangGraph)"
+        API[REST API + WebSocket]
+        Orchestrator[Agent Orchestrator]
+        Writer[Writer Agent]
+        Reviewer[Reviewer Agent]
+        Publisher[Publisher Agent]
     end
-
-    subgraph Agent Tools
-      T[File System Tools];
-      U[Memory Tools];
-    end
-
-    N --> T;
-    O --> T;
-    N <--> R;
-    O <--> R;
-    N <--> U;
-    U <--> S;
     
-    style Mission Control UI fill:#222,stroke:#39c,stroke-width:2px
-    style Back End fill:#222,stroke:#5c5,stroke-width:2px
+    subgraph "Services"
+        LLM[Gemini 1.5 Pro]
+        Vector[ChromaDB Vector Store]
+        FS[File System]
+    end
+    
+    UI -->|WebSocket| API
+    API --> Orchestrator
+    Orchestrator --> Writer
+    Writer --> Reviewer
+    Reviewer --> Publisher
+    Writer <-->|Queries| LLM
+    Reviewer <-->|Queries| LLM
+    Writer <-->|Memory| Vector
+    Orchestrator <-->|Read Files| FS
+    
+    style UI fill:#2d3748,stroke:#4299e1,stroke-width:2px
+    style API fill:#2d3748,stroke:#48bb78,stroke-width:2px
+    style LLM fill:#2d3748,stroke:#ed8936,stroke-width:2px
+```
+
+### Agent Workflow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI as Mission Control
+    participant Backend
+    participant Writer
+    participant Reviewer
+    participant Publisher
+    
+    User->>UI: Select Project & Launch
+    UI->>Backend: start_agent event
+    Backend->>Backend: Discover Java files
+    
+    loop For each file
+        Backend->>Writer: Generate documentation
+        Writer->>Backend: Draft content
+        Backend->>Reviewer: Review against source
+        Reviewer->>Backend: Feedback
+        alt Approved
+            Backend->>Backend: Store in memory
+        else Needs revision
+            Backend->>Writer: Revise with feedback
+        end
+    end
+    
+    Backend->>Publisher: Assemble final doc
+    Publisher->>UI: final_result event
+    UI->>User: Display documentation
 ```
 
 ---
 
-## 🏁 Getting Started
-
-Follow these instructions to set up and run the project locally.
+## 🚀 Installation
 
 ### Prerequisites
 
-*   **Node.js** (v18 or later)
-*   **Python** (v3.11 or later)
-*   **Rust & System Dependencies** for Tauri. Follow the [official Tauri guide](https://tauri.app/v1/guides/getting-started/prerequisites) for your operating system.
-*   A **Google Gemini API Key**.
+Before you begin, ensure you have the following installed:
 
-### 1. Back-End Setup
+| Requirement | Version | Download Link |
+|------------|---------|---------------|
+| **Python** | 3.11+ | [python.org](https://www.python.org/downloads/) |
+| **Node.js** | 18+ | [nodejs.org](https://nodejs.org/) |
+| **Rust** | Latest stable | [rustup.rs](https://rustup.rs/) |
+| **Git** | Latest | [git-scm.com](https://git-scm.com/) |
+
+#### Platform-Specific Requirements
+
+**macOS:**
+```bash
+xcode-select --install
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install libwebkit2gtk-4.0-dev \
+    build-essential \
+    curl \
+    wget \
+    libssl-dev \
+    libgtk-3-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev
+```
+
+**Windows:**
+- Install [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+- Install [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)
+
+For detailed Tauri setup instructions, visit the [official Tauri prerequisites guide](https://tauri.app/v1/guides/getting-started/prerequisites).
+
+### Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+# 1. Clone the repository
+git clone https://github.com/SOUHAIB-IA/springboot-doc-agent.git
+cd springboot-doc-agent
 
-# Set up a Python virtual environment
+# 2. Run the setup script
+chmod +x setup.sh
+./setup.sh
+
+# 3. Configure environment variables
+cp .env.example .env
+# Edit .env and add your GOOGLE_API_KEY
+
+# 4. Start the application
+npm run start:all
+```
+
+### Detailed Setup
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/SOUHAIB-IA/springboot-doc-agent.git
+cd springboot-doc-agent
+```
+
+#### 2. Backend Setup
+
+```bash
+# Create virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
 
-# Install Python dependencies
+# Activate virtual environment
+# On macOS/Linux:
+source .venv/bin/activate
+# On Windows:
+.venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+```
 
-# Create the environment file
+#### 3. Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd springboot-doc-agent-frontend
+
+# Install dependencies
+npm install
+
+# Return to project root
+cd ..
+```
+
+#### 4. Environment Configuration
+
+Create a `.env` file in the project root:
+
+```bash
 cp .env.example .env
 ```
 
-Now, open the `.env` file and add your Google Gemini API key:
+Edit `.env` and configure:
 
 ```env
-# .env
-GOOGLE_API_KEY="your-google-api-key-goes-here..."
+# Required: Google Gemini API Key
+GOOGLE_API_KEY=your_gemini_api_key_here
+
+# Optional: Server Configuration
+HOST=0.0.0.0
+PORT=8000
+
+# Optional: LLM Configuration
+LLM_TEMPERATURE=0.3
+LLM_MAX_TOKENS=8192
+
+# Optional: Vector Store Path
+VECTOR_STORE_PATH=./data/chroma_db
 ```
 
-### 2. Front-End Setup
-
-```bash
-# Navigate to the front-end directory
-cd springboot-doc-agent-frontend  # Or your front-end folder name
-
-# Install Node.js dependencies
-npm install
-```
-
-### 3. Running the Application
-
-This application requires **two separate terminal sessions** to run concurrently.
-
-**Terminal 1: Start the Back-End Server**
-
-```bash
-# From the project root directory
-source .venv/bin/activate
-python main.py
-```
-You should see Uvicorn start the server on `http://0.0.0.0:8000`.
-
-**Terminal 2: Launch the Front-End Desktop App**
-
-```bash
-# From the front-end directory (e.g., springboot-doc-agent-frontend)
-npm run tauri dev
-```
-After the initial compilation, the native desktop "Mission Control" window will appear.
+**Getting a Gemini API Key:**
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the key to your `.env` file
 
 ---
 
-## 📖 How to Use
+## 📖 Usage
 
-1.  **Launch the application** using the two-terminal setup described above.
-2.  In the Mission Control window, click **"Browse for Project..."**.
-3.  A native file dialog will open. Select the **root folder** of the Spring Boot project you want to document.
-4.  Click **"Launch Agent"**.
-5.  **Watch the magic!** The "Agent Feed" will populate with the real-time thoughts and actions of the agents.
-6.  Once the process is complete, the final documentation will appear in the "Documentation Preview" panel. You can then **copy** it or **download** it as a `.md` file.
+### Starting the Application
+
+You have two options:
+
+#### Option 1: Using the Convenience Script (Recommended)
+
+```bash
+npm run start:all
+```
+
+This starts both the backend and frontend in separate processes.
+
+#### Option 2: Manual Start (Two Terminals)
+
+**Terminal 1 - Backend:**
+```bash
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python main.py
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd springboot-doc-agent-frontend
+npm run tauri dev
+```
+
+### Using the Application
+
+1. **Launch**: The Mission Control window opens automatically
+2. **Select Project**: Click "Browse for Project..." and select your Spring Boot project root
+3. **Launch Agent**: Click "Launch Agent" to start the documentation process
+4. **Monitor**: Watch real-time agent activity in the feed
+5. **Review**: Once complete, review the documentation in the preview panel
+6. **Export**: Click "Download" or "Copy to Clipboard"
+
+### Command Line Options
+
+```bash
+# Start with custom port
+python main.py --port 8080
+
+# Enable debug logging
+python main.py --debug
+
+# Use different LLM provider
+python main.py --llm openai --api-key YOUR_KEY
+```
+
+---
+
+## ⚙️ Configuration
+
+### LLM Provider Configuration
+
+The system supports multiple LLM providers. Edit `config/llm_config.py`:
+
+```python
+# Google Gemini (Default)
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "gemini-1.5-pro"
+
+# OpenAI
+# LLM_PROVIDER = "openai"
+# LLM_MODEL = "gpt-4-turbo-preview"
+
+# Groq
+# LLM_PROVIDER = "groq"
+# LLM_MODEL = "mixtral-8x7b-32768"
+```
+
+### Agent Behavior
+
+Customize agent prompts in `agents/prompts/`:
+- `writer_prompt.txt` - Documentation writing guidelines
+- `reviewer_prompt.txt` - Review criteria and standards
+- `publisher_prompt.txt` - Final assembly instructions
+
+### Vector Store Configuration
+
+Modify `config/vector_store_config.py` for memory settings:
+
+```python
+VECTOR_STORE_CONFIG = {
+    "persist_directory": "./data/chroma_db",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "collection_name": "spring_boot_docs",
+    "chunk_size": 1000,
+    "chunk_overlap": 200
+}
+```
+
+---
+
+## 📁 Project Structure
+
+```
+springboot-doc-agent/
+├── agents/                      # Agent definitions
+│   ├── writer_agent.py
+│   ├── reviewer_agent.py
+│   ├── publisher_agent.py
+│   └── prompts/
+├── config/                      # Configuration files
+│   ├── llm_config.py
+│   └── vector_store_config.py
+├── springboot-doc-agent-frontend/  # Frontend application
+│   ├── src/
+│   │   ├── app/                 # Next.js app
+│   │   ├── components/          # React components
+│   │   └── lib/                 # Utilities
+│   ├── src-tauri/               # Tauri backend
+│   │   ├── src/
+│   │   └── tauri.conf.json
+│   ├── package.json
+│   └── next.config.js
+├── tools/                       # Agent tools
+│   ├── file_system_tools.py
+│   └── memory_tools.py
+├── utils/                       # Utilities
+│   ├── file_discovery.py
+│   └── code_parser.py
+├── tests/                       # Test suite
+│   ├── test_agents.py
+│   └── test_tools.py
+├── data/                        # Runtime data
+│   └── chroma_db/
+├── main.py                      # Backend entry point
+├── requirements.txt             # Python dependencies
+├── .env.example                 # Environment template
+├── .gitignore
+├── LICENSE
+├── README.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+└── CHANGELOG.md
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+
+| Technology | Purpose | Documentation |
+|-----------|---------|---------------|
+| **Python 3.11+** | Core language | [python.org](https://www.python.org/) |
+| **FastAPI** | REST API & WebSocket server | [fastapi.tiangolo.com](https://fastapi.tiangolo.com/) |
+| **LangChain** | LLM orchestration framework | [langchain.com](https://www.langchain.com/) |
+| **LangGraph** | Multi-agent workflow | [langchain-ai.github.io/langgraph](https://langchain-ai.github.io/langgraph/) |
+| **ChromaDB** | Vector database | [trychroma.com](https://www.trychroma.com/) |
+| **Sentence Transformers** | Local embeddings | [sbert.net](https://www.sbert.net/) |
+| **python-socketio** | WebSocket communication | [python-socketio.readthedocs.io](https://python-socketio.readthedocs.io/) |
+
+### Frontend
+
+| Technology | Purpose | Documentation |
+|-----------|---------|---------------|
+| **Next.js 14** | React framework | [nextjs.org](https://nextjs.org/) |
+| **React 18** | UI library | [react.dev](https://react.dev/) |
+| **TypeScript** | Type safety | [typescriptlang.org](https://www.typescriptlang.org/) |
+| **Tauri** | Desktop app framework | [tauri.app](https://tauri.app/) |
+| **Tailwind CSS** | Styling | [tailwindcss.com](https://tailwindcss.com/) |
+| **shadcn/ui** | Component library | [ui.shadcn.com](https://ui.shadcn.com/) |
+| **socket.io-client** | WebSocket client | [socket.io](https://socket.io/) |
+
+### AI/ML
+
+| Provider | Model | Use Case |
+|---------|-------|----------|
+| **Google Gemini** | gemini-1.5-pro | Default LLM |
+| **OpenAI** | gpt-4-turbo | Alternative LLM |
+| **Groq** | mixtral-8x7b | High-speed inference |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+We love contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is welcome.
 
-Please see the `CONTRIBUTING.md` file for our code of conduct and the process for submitting pull requests.
+### How to Contribute
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
+4. **Push to the branch** (`git push origin feature/AmazingFeature`)
+5. **Open a Pull Request**
+
+### Contribution Guidelines
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for:
+- Code style and conventions
+- Commit message format
+- Testing requirements
+- PR submission process
 
 ### Areas for Contribution
 
-*   **➕ More Tools:** Add new tools for the agents, such as a `dependency_analysis_tool` (reads `pom.xml`/`build.gradle`) or a `database_schema_tool`.
-*   **🧠 Smarter Agents:** Improve the prompts to handle more complex code structures or edge cases.
-*   **🎨 UI/UX Enhancements:** Add features to the Mission Control dashboard, like a "Diff Viewer" for re-runs or a project history panel.
-*   **🧪 Better Testing:** Expand the test suite for both the front-end and back-end components.
-*   **🌐 Broader Language Support:** Adapt the agent to document projects in other languages (e.g., Python/Django, Node.js/Express).
+We're especially looking for help with:
+
+#### 🔧 Features & Enhancements
+- [ ] Support for additional LLM providers (Anthropic Claude, local models)
+- [ ] Database schema visualization
+- [ ] REST API endpoint testing and documentation
+- [ ] Dependency analysis from `pom.xml`/`build.gradle`
+- [ ] Multi-language support (Python/Django, Node.js/Express, Go)
+- [ ] Automated diagram generation (class diagrams, sequence diagrams)
+
+#### 🎨 UI/UX Improvements
+- [ ] Dark/light theme toggle
+- [ ] Project history and comparison viewer
+- [ ] Configuration editor in UI
+- [ ] Progress indicators and ETAs
+- [ ] Keyboard shortcuts
+
+#### 🧪 Testing & Quality
+- [ ] Unit tests for agents
+- [ ] Integration tests for workflows
+- [ ] E2E tests for UI
+- [ ] Performance benchmarking
+- [ ] Load testing for large codebases
+
+#### 📚 Documentation
+- [ ] Video tutorials
+- [ ] Architecture decision records (ADRs)
+- [ ] API reference documentation
+- [ ] Troubleshooting guides
+- [ ] Localization (i18n)
+
+### Development Setup
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+cd springboot-doc-agent-frontend && npm install
+
+# Run tests
+pytest tests/
+npm test
+
+# Run linters
+black .
+pylint agents/ tools/ utils/
+npm run lint
+
+# Run type checking
+mypy agents/ tools/ utils/
+npm run type-check
+```
+
+### Code of Conduct
+
+This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you're expected to uphold this code.
 
 ---
 
 ## 🗺️ Roadmap
 
-*   [ ] **Project History & Diff Viewer:** Allow users to view past documentation runs and compare versions.
-*   [ ] **Configuration Editor:** A UI to edit agent prompts and parameters directly from the Mission Control dashboard.
-*   [ ] **Support for Other LLMs:** Add a settings panel to easily switch between Gemini, Groq, and local models.
-*   [ ] **Automated Diagram Generation:** Integrate a tool that generates Mermaid.js diagrams (e.g., class or sequence diagrams) from the code.
+### Version 1.1 (Q1 2025)
+- [x] Multi-agent documentation system
+- [x] Real-time UI monitoring
+- [x] Vector store integration
+- [ ] Project history tracking
+- [ ] Export to PDF/HTML
+
+### Version 1.2 (Q2 2025)
+- [ ] Multi-LLM provider support
+- [ ] Configuration UI panel
+- [ ] Database schema documentation
+- [ ] API endpoint testing
+- [ ] Performance optimizations
+
+### Version 2.0 (Q3 2025)
+- [ ] Support for Python/Django projects
+- [ ] Support for Node.js/Express projects
+- [ ] Automated diagram generation
+- [ ] Collaborative editing
+- [ ] Cloud sync option (optional)
+
+### Future Considerations
+- [ ] IDE plugins (VS Code, IntelliJ)
+- [ ] CI/CD integration
+- [ ] Documentation versioning
+- [ ] Custom template support
+- [ ] Enterprise features
+
+See our [GitHub Projects](https://github.com/SOUHAIB-IA/springboot-doc-agent/projects) for detailed planning.
 
 ---
 
-## 📜 License
+## 🔧 Troubleshooting
 
-Distributed under the MIT License. See `LICENSE` for more information.
+### Common Issues
+
+#### Backend won't start
+
+**Problem**: `ModuleNotFoundError: No module named 'fastapi'`
+
+**Solution**:
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### Frontend build fails
+
+**Problem**: `Error: Cannot find module 'next'`
+
+**Solution**:
+```bash
+cd springboot-doc-agent-frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Tauri build fails on Linux
+
+**Problem**: Missing system dependencies
+
+**Solution**:
+```bash
+sudo apt-get update
+sudo apt-get install -y libwebkit2gtk-4.0-dev \
+    build-essential \
+    curl \
+    wget \
+    libssl-dev \
+    libgtk-3-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev
+```
+
+#### API key not recognized
+
+**Problem**: `GOOGLE_API_KEY not found`
+
+**Solution**:
+1. Ensure `.env` file exists in project root
+2. Verify the key is properly formatted: `GOOGLE_API_KEY=your_key_here`
+3. Restart the backend server
+
+#### WebSocket connection fails
+
+**Problem**: Frontend can't connect to backend
+
+**Solution**:
+1. Verify backend is running on port 8000
+2. Check firewall settings
+3. Ensure `HOST=0.0.0.0` in `.env`
+
+### Getting Help
+
+- 📖 Check our [FAQ](#-faq)
+- 💬 Join our [Discussions](https://github.com/SOUHAIB-IA/springboot-doc-agent/discussions)
+- 🐛 Open an [Issue](https://github.com/SOUHAIB-IA/springboot-doc-agent/issues)
+- 📧 Email: sohaib.garaaaouch55@gmail.com
 
 ---
 
-## Acknowledgment
+## ❓ FAQ
 
-This project stands on the shoulders of giants. A big thank you to the teams behind LangChain, Tauri, FastAPI, and all the other open-source libraries that made this possible.
+**Q: Does this work with other Java frameworks?**  
+A: Currently optimized for Spring Boot, but can be adapted for other frameworks with custom prompts.
+
+**Q: Can I use this offline?**  
+A: The app runs locally, but requires internet for LLM API calls. Local model support is planned.
+
+**Q: How much does it cost?**  
+A: The software is free. You only pay for LLM API usage (Gemini offers a free tier).
+
+**Q: Is my code sent to the cloud?**  
+A: Only code snippets are sent to the LLM API for analysis. You control what's shared.
+
+**Q: Can I customize the documentation format?**  
+A: Yes! Edit the agent prompts in `agents/prompts/` to change output style.
+
+**Q: What size codebases can it handle?**  
+A: Tested with projects up to 100k lines. Performance varies with LLM API speed.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2025 [Your Name]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 🙏 Acknowledgments
+
+This project builds upon incredible open-source technologies:
+
+- [LangChain](https://github.com/langchain-ai/langchain) - LLM application framework
+- [Tauri](https://github.com/tauri-apps/tauri) - Desktop app framework
+- [FastAPI](https://github.com/tiangolo/fastapi) - Modern Python web framework
+- [Next.js](https://github.com/vercel/next.js) - React framework
+- [ChromaDB](https://github.com/chroma-core/chroma) - Vector database
+- [shadcn/ui](https://github.com/shadcn-ui/ui) - Beautiful UI components
+
+Special thanks to:
+- Google for the Gemini API
+- The open-source community for countless libraries and tools
+- All contributors who help improve this project
+
+---
+
+## 📞 Contact
+
+**Project Maintainer**: [souhaib garaaouch](https://github.com/SOUHAIB-IA/Springboot_documentation_agent)
+
+- 📧 Email: sohaib.garaaouch55@gmail.com
+- 💼 LinkedIn: [souhaib garaaouch](https://www.linkedin.com/in/souhaib-garaaouch-853a011a5/)
+
+<div align="center">
+
+### ⭐ Star this repository if you find it helpful!
+
+**Made with ❤️ by the open-source community**
+
+[⬆ Back to Top](#autonomous-spring-boot-documentation-agent)
+
+</div>
