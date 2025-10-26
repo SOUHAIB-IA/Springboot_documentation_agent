@@ -17,4 +17,17 @@ venv/
 
 # Other
 *.log
-GENERATED_DOCUMENTATION.md
+FINAL_DOCUMENTATION.md
+
+# Backend
+backend/__pycache__/
+backend/*.pyc
+backend/.venv/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/.env
+frontend/src-tauri/target/
+frontend/src-tauri/Cargo.lock

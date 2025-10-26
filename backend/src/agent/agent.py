@@ -1,11 +1,13 @@
 import time
-from typing import TypedDict
+from typing import Optional, TypedDict,List
 from langchain import hub
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, END
 from src.agent.tools import CodeAndMemoryTools
 from google.api_core.exceptions import ServiceUnavailable
+from langchain_core.runnables import RunnableConfig
+from langchain.callbacks.base import BaseCallbackHandler
 
 from src.agent.publisher_prompts import PUBLISHER_PROMPT_TEMPLATE
 from langchain_core.output_parsers import StrOutputParser
@@ -27,11 +29,12 @@ def create_agent(llm, tools):
     return AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
 
 # --- Agent Nodes with Corrected Prompts ---
-def writer_agent_node(state: AgentState):
+def writer_agent_node(state: AgentState, config: Optional[RunnableConfig] = None):
     """The node for the Documentation Writer agent."""
     file_path = state['file_path']
     print(f"\n--- ✍️ CALLING WRITER for: {file_path} ---")
-
+    
+    callbacks = config.get('callbacks') if config else None
     # *** THE FIX: Add a strong persona and behavioral rules to the prompt ***
     if state.get("review_feedback"):
         # This prompt for revisions is fine as it's highly specific.
@@ -77,7 +80,7 @@ def writer_agent_node(state: AgentState):
     writer_agent = create_agent(llm, tools)
     
     try:
-        result = writer_agent.invoke({"input": user_input, "chat_history": [("assistant", state['draft_documentation'])]})
+        result = writer_agent.invoke({"input": user_input, "chat_history": [("assistant", state['draft_documentation'])]}, config={"callbacks": callbacks})
         return {"draft_documentation": result["output"], "revision_number": state.get("revision_number", 0) + 1}
     except ServiceUnavailable as e:
         error_message = f"Network error during writer execution: {e}. Skipping."
@@ -89,11 +92,12 @@ def writer_agent_node(state: AgentState):
         return {"draft_documentation": f"### ERROR: {error_message}", "revision_number": state.get("revision_number", 0) + 1}
 
 
-def reviewer_agent_node(state: AgentState):
+def reviewer_agent_node(state: AgentState, config: Optional[RunnableConfig] = None):
     """The node for the Documentation Reviewer agent."""
     file_path = state['file_path']
     print(f"\n--- 🧐 CALLING REVIEWER for: {file_path} ---")
 
+    callbacks = config.get('callbacks') if config else None
     # *** THE FIX: Add a strong persona and behavioral rules to the reviewer as well ***
     system_prompt = """
     You are an autonomous AI code reviewer. Your sole purpose is to review a documentation draft against its source code.
@@ -129,7 +133,7 @@ def reviewer_agent_node(state: AgentState):
         {state['draft_documentation']}
         ```
         """
-        result = reviewer_agent.invoke({"input": user_input})
+        result = reviewer_agent.invoke({"input": user_input}, config={"callbacks": callbacks})
         return {"review_feedback": result["output"]}
     except ServiceUnavailable as e:
         error_message = f"Network error during reviewer execution: {e}. Approving to skip."
@@ -158,7 +162,7 @@ def should_continue(state: AgentState):
     print("Feedback received. Returning to writer for revision.")
     return "continue"
 
-def run_agent(project_path: str):
+def run_agent(project_path: str,callbacks:List[BaseCallbackHandler]= None):
     """
     Orchestrates the entire documentation generation process, from file discovery
     to final publishing.
@@ -206,8 +210,7 @@ def run_agent(project_path: str):
         }
         
         # Invoke the graph for this single file
-        final_state = app.invoke(initial_state, {"recursion_limit": 10})
-        
+        final_state = app.invoke(initial_state, config={"callbacks": callbacks, "recursion_limit": 10})
         # Add the approved documentation snippet to our list
         snippet = final_state.get('draft_documentation', f"### Failed to document {file_path}\n")
         # Add the file path as a header to each snippet for the publisher's context
@@ -232,7 +235,7 @@ def run_agent(project_path: str):
 
     # Invoke the Publisher to get the final, polished document
     try:
-        final_document = publisher_chain.invoke({"documentation_snippets": raw_snippets})
+        final_document = publisher_chain.invoke({"documentation_snippets": raw_snippets}, config={"callbacks": callbacks})
         print("✅ Final document successfully assembled.")
     except Exception as e:
         print(f"❌ Error during publishing phase: {e}")
